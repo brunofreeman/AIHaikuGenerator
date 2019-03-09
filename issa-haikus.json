@@ -5,7 +5,11 @@
 		"Quotation marks were escaped.",
 		"Newlines were replaced with \"\\n\"'s.",
 		"cool air--\n\"Third Month has passed!'\nsings the bird\n\nwas changed to\n\ncool air--\n\"Third Month has passed!\"\nsings the bird",
-		"just now it fell--\n\"A hailstone!\" cries the toddler\nOver there!\"\n\nwas changed to\n\njust now it fell--\n\"A hailstone!\" cries the toddler\n\"Over there!\""
+		"just now it fell--\n\"A hailstone!\" cries the toddler\nOver there!\"\n\nwas changed to\n\njust now it fell--\n\"A hailstone!\" cries the toddler\n\"Over there!\"",
+		"up to today\nsuch perserverance and strength!\nreturning geese\n\nwas changed to\n\nup to today\nsuch perseverance and strength!\nreturning geese",
+		"up to today\nsuch great perserverance...\nwild geese! wild geese!\n\nwas changed to\n\nup to today\nsuch great perseverance...\nwild geese! wild geese!",
+		"flute pratice--\nthe rice fields one and all\nso green!\n\nwas changed to\n\nflute practice--\nthe rice fields one and all\nso green!",
+		"at peddlar, everywhich, every-which"
 	],
 	"haikus":[
 		"on New Year's Day\na cute little pilgrim\nat the gate",
@@ -138,8 +142,8 @@
 		"peeking into\nthe grassy meadow...\na pheasant cries",
 		"the bright moon in raindrops\nfrom the eaves...\nthe geese depart",
 		"a goose without companions\nflying fast as he can\nreturns",
-		"up to today\nsuch perserverance and strength!\nreturning geese",
-		"up to today\nsuch great perserverance...\nwild geese! wild geese!",
+		"up to today\nsuch perseverance and strength!\nreturning geese",
+		"up to today\nsuch great perseverance...\nwild geese! wild geese!",
 		"geese honking--\nnow they leave behind\nJapan",
 		"after seeing rice planting\nin remote provinces...\nthe geese depart",
 		"thinking of taking off?\ngoose on tiptoe\non tiptoe",
@@ -2844,7 +2848,7 @@
 		"summer mountain--\nthe maiden flower\nhappy by herself",
 		"in an old, old kettle\nfrom olden times...\npure water",
 		"evening shadows--\nhe throws pure water\non the horse",
-		"flute pratice--\nthe rice fields one and all\nso green!",
+		"flute practice--\nthe rice fields one and all\nso green!",
 		"Kasuga Field's deer\nalso attend...\nBuddha amid birthday flowers",
 		"village children\nand crows mingle...\nBuddha amid birthday flowers",
 		"traveling crow\nat Edo's purification...\nnow you're old",
