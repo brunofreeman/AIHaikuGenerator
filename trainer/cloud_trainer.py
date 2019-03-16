@@ -72,7 +72,6 @@ log_every = 10
 save_every = 600
 #needs to be set to avoid under and over fitting
 hidden_nodes = 1024
-test_start = 'the'
 #save model
 checkpoint_directory = 'ckpt'
 
@@ -107,7 +106,7 @@ with graph.as_default():
 	b_f = tf.Variable(tf.zeros([1, hidden_nodes]))
 
 	#output gate
-	w_ii = tf.Variable(tf.truncated_normal([char_size, hidden_nodes], -0.1, 0.1))
+	w_oi = tf.Variable(tf.truncated_normal([char_size, hidden_nodes], -0.1, 0.1))
 	w_oo = tf.Variable(tf.truncated_normal([hidden_nodes, hidden_nodes], -0.1, 0.1))
 	b_o = tf.Variable(tf.zeros([1, hidden_nodes]))
 
@@ -139,9 +138,136 @@ with graph.as_default():
 		#return
 		return output, state
 
+	############
+	#operation
+	############
+	#LSTM
+	#both start off as empty, LSTM will calculate this
+	output = tf.zeros([batch_size, hidden_nodes])
+	state = tf.zeros([batch_size, hidden_nodes])
+
+	#unrolled LSTM loop
+	#for each input set
+	for i in range(len_per_section):
+		#calculate state and output from LSTM
+		output, state = lstm(data[:, i, :], output, state)
+		#to start, 
+		if i == 0:
+			#store initial output and labels
+			outputs_all_i = output
+			labels_all_i = data[:, i+1, :]
+		#for each new set, concat outputs and labels
+		elif i != len_per_section - 1:
+			#concatenates (combines) vectors along a dimension axis, not multiply
+			outputs_all_i = tf.concat([outputs_all_i, output], 0)
+			labels_all_i = tf.concat([labels_all_i, data[:, i+1, :]], 0)
+		else:
+			#final store
+			outputs_all_i = tf.concat([outputs_all_i, output], 0)
+			labels_all_i = tf.concat([labels_all_i, labels], 0)
+
+	#Classifier
+	#The Classifier will only run after saved_output and saved_state were assigned.
+
+	#calculate weight and bias values for the network
+	#generated randomly given a size and distribution
+	w = tf.Variable(tf.truncated_normal([hidden_nodes, char_size], -0.1, 0.1))
+	b = tf.Variable(tf.zeros([char_size]))
+	#Logits simply means that the function operates on the unscaled output 
+	#of earlier layers and that the relative scale to understand the units 
+	#is linear. It means, in particular, the sum of the inputs may not equal 1, 
+	#that the values are not probabilities (you might have an input of 5).
+	logits = tf.matmul(outputs_all_i, w) + b
+
+	#logits is our prediction outputs, lets compare it with our labels
+	#cross entropy since multiclass classification
+	#computes the cost for a softmax layer
+	#then Computes the mean of elements across dimensions of a tensor.
+	#average loss across all values
+	loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=labels_all_i))
+
+	#Optimizer
+	#minimize loss with graident descent, learning rate 10,  keep track of batches
+	optimizer = tf.train.GradientDescentOptimizer(10.).minimize(loss, global_step=global_step)
+
+#time to train the model, initialize a session with a graph
+with tf.Session(graph=graph) as sess:
+    #standard init step
+    tf.global_variables_initializer().run()
+    offset = 0
+    saver = tf.train.Saver()
+    
+    #for each training step
+    for step in range(max_steps):
+        
+        #starts off as 0
+        offset = offset % len(X)
+        
+        #calculate batch data and labels to feed model iteratively
+        if offset <= (len(X) - batch_size):
+            #first part
+            batch_data = X[offset: offset + batch_size]
+            batch_labels = y[offset: offset + batch_size]
+            offset += batch_size
+        #until when offset  = batch size, then we 
+        else:
+            #last part
+            to_add = batch_size - (len(X) - offset)
+            batch_data = np.concatenate((X[offset: len(X)], X[0: to_add]))
+            batch_labels = np.concatenate((y[offset: len(X)], y[0: to_add]))
+            offset = to_add
+        
+        #optimize!!
+        _, training_loss = sess.run([optimizer, loss], feed_dict={data: batch_data, labels: batch_labels})
+        
+        if step % 10 == 0:
+            print('training loss at step %d: %.2f (%s)' % (step, training_loss, datetime.datetime.now()))
+
+            if step % save_every == 0:
+                saver.save(sess, checkpoint_directory + '/model', global_step=step)
 
 
+test_start = 'the '
 
+with tf.Session(graph=graph) as sess:
+    #init graph, load model
+    tf.global_variables_initializer().run()
+    model = tf.train.latest_checkpoint(checkpoint_directory)
+    saver = tf.train.Saver()
+    saver.restore(sess, model)
+
+    #set input variable to generate chars from
+    reset_test_state.run() 
+    test_generated = test_start
+
+    #for every char in the input sentennce
+    for i in range(len(test_start) - 1):
+        #initialize an empty char store
+        test_X = np.zeros((1, char_size))
+        #store it in id from
+        test_X[0, char2id[test_start[i]]] = 1.
+        #feed it to model, test_prediction is the output value
+        _ = sess.run(test_prediction, feed_dict={test_data: test_X})
+
+    
+    #where we store encoded char predictions
+    test_X = np.zeros((1, char_size))
+    test_X[0, char2id[test_start[-1]]] = 1.
+
+    #generate 500 characters
+    for i in range(500):
+        #get each prediction probability
+        prediction = test_prediction.eval({test_data: test_X})[0]
+        #one hot encode it
+        next_char_one_hot = sample(prediction)
+        #get the indices of the max values (highest probability)  and convert to char
+        next_char = id2char[np.argmax(next_char_one_hot)]
+        #add each char to the output text iteratively
+        test_generated += next_char
+        #update the 
+        test_X = next_char_one_hot.reshape((1, char_size))
+
+    print(test_generated)
 
 
 
