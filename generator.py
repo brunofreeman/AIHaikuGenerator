@@ -196,10 +196,13 @@ with graph.as_default():
 	test_output, test_state = lstm(test_data, test_output, test_state)
 	test_prediction = tf.nn.softmax(tf.matmul(test_output, w) + b)
 
-def test_LSTM():
-	test_start = random.choice(text)
-	while test_start  not in 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz':
+def test_LSTM(start):
+	if start != "":
+		test_start = start
+	else:
 		test_start = random.choice(text)
+		while test_start  not in 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz\"':
+			test_start = random.choice(text)
 
 	with tf.Session(graph=graph) as sess:
 		#init graph, load model
@@ -226,8 +229,8 @@ def test_LSTM():
 		test_X = np.zeros((1, char_size))
 		test_X[0, char2id[test_start[-1]]] = 1.
 
-		#generate 1000 characters
-		for i in range(1000):
+		#generate 100 characters
+		for i in range(200):
 			#get each prediction probability
 			prediction = test_prediction.eval({test_data: test_X})[0]
 			#one hot encode it
@@ -241,9 +244,9 @@ def test_LSTM():
 
 	return test_generated
 
-def generate_SIP():
-	test_generated = test_LSTM()
+def generate_SIP(start):
+	test_generated = test_LSTM(start)
 	try:
-		return test_generated[0:test_generated.index("\n\n")]
+		return test_generated[test_generated.index("\n\n") + 2:test_generated.index("\n\n", test_generated.index("\n\n") + 4)]
 	except:
 		return test_generated
