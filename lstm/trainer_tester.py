@@ -70,9 +70,9 @@ for i, section in enumerate(sections):
 #machine learning time
 batch_size = 512
 #number of iterations
-max_steps = 5001
+max_steps = 10001
 log_every = 50
-save_every = 250
+save_every = 500
 #needs to be set to avoid under and over fitting
 hidden_nodes = 1024
 #save model
@@ -254,7 +254,9 @@ if training:
 			if step % save_every == 0:
 					saver.save(sess, checkpoint_directory + '/model', global_step=step)
 else:
-	test_start = 'the '
+	test_start = random.choice(text)
+	while test_start  not in 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz':
+		test_start = random.choice(text)
 
 	with tf.Session(graph=graph) as sess:
 		#init graph, load model
@@ -282,7 +284,7 @@ else:
 		test_X[0, char2id[test_start[-1]]] = 1.
 
 		#generate 500 characters
-		for i in range(500):
+		for i in range(5000):
 			#get each prediction probability
 			prediction = test_prediction.eval({test_data: test_X})[0]
 			#one hot encode it
