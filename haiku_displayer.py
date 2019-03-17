@@ -1,10 +1,7 @@
 from tkinter import *
 
-def onclick():
-   pass
+window = TK()
+window.title("Issa Generator")
+#Label(window, text)
 
-root = Tk()
-text = Text(root)
-text.insert(INSERT, "haiku haiku haiku")
-text.pack()
-root.mainloop()
+window.mainloop()
