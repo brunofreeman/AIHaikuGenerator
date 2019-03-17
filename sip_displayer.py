@@ -5,8 +5,7 @@ import tkinter.font
 def change_SIP():
 	sip_text.set("")
 	window.update()
-	sip_text.set(generate_SIP(""))
-	print(sip_text.width())
+	sip_text.set(generate_SIP(""))\
 
 window = Tk()
 window.title("Issa Generator")
