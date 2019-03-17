@@ -3,22 +3,23 @@ from generator import generate_SIP
 import tkinter.font
 
 def change_SIP():
-	haiku_text.set("")
+	sip_text.set("")
 	window.update()
-	haiku_text.set(generate_SIP(""))
+	sip_text.set(generate_SIP(""))
+	print(sip_text.width())
 
 window = Tk()
 window.title("Issa Generator")
 window.configure(background="black")
-window_size = 750
+window_size = 1000
 window.geometry(str(window_size) + "x" + str(window_size))
-window.resizable(width=False, height=False)
+#window.resizable(width=False, height=False)
 
-haiku_text = StringVar()
-haiku_text.set("authored by computer...\nshort Issa poems for you\nnow, click the button")
-haiku_font = tkinter.font.Font(family="Helvetica", size=36, weight="bold")
-haiku_label = Label(window, textvariable=haiku_text, font=haiku_font, bg="black", fg="white")
-haiku_label.place(relx=0.5, rely=0.4, anchor="c")
+sip_text = StringVar()
+sip_text.set("authored by computer...\nshort Issa poems for you\nnow, click the button")
+sip_font = tkinter.font.Font(family="Helvetica", size=36, weight="bold")
+sip_label = Label(window, textvariable=sip_text, font=sip_font, bg="black", fg="white")
+sip_label.place(relx=0.5, rely=0.4, anchor="c")
 
 button_font = tkinter.font.Font(family="Helvetica", size=24, weight="bold")
 generate_button = Button(window, text="Take a SIP", font=button_font, command=change_SIP)

@@ -247,6 +247,6 @@ def test_LSTM(start):
 def generate_SIP(start):
 	test_generated = test_LSTM(start)
 	try:
-		return test_generated[test_generated.index("\n\n") + 2:test_generated.index("\n\n", test_generated.index("\n\n") + 4)]
+		return test_generated[0:test_generated.index("\n\n")] #test_generated[test_generated.index("\n\n") + 2:test_generated.index("\n\n", test_generated.index("\n\n") + 4)]
 	except:
 		return test_generated

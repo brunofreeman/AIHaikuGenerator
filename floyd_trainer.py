@@ -60,7 +60,7 @@ for i, section in enumerate(sections):
 #machine learning time
 batch_size = 512
 #number of iterations
-max_steps = 20001
+max_steps = 30001
 log_every = 100
 save_every = 100
 #needs to be set to avoid under and over fitting
