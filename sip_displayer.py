@@ -1,5 +1,5 @@
 from tkinter import *
-from generator import generate_SIP
+from sip_lstm import generate_SIP
 import tkinter.font
 
 def change_SIP():
@@ -15,7 +15,7 @@ def reset_SIP():
 default_sip = "authored by computer...\nshort Issa poems for you\nnow, click the button"
 
 window = Tk()
-window.title("Issa Generator")
+window.title("SIP Generator")
 window.configure(background="black")
 window_size = 1000
 window.geometry(str(window_size) + "x" + str(window_size))
