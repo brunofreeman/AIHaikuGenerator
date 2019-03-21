@@ -116,7 +116,7 @@ def train_lstm(max_steps, log_every, save_every):
 			model = tf.train.latest_checkpoint(checkpoint_directory)
 			saver = tf.train.Saver()
 			saver.restore(sess, model)
-			file = open("ckpt/step.txt", "r")
+			file = open('ckpt/step.txt', 'r')
 			step_start = int(file.read()) + 1
 			file.close()
 		except:
@@ -144,12 +144,12 @@ def train_lstm(max_steps, log_every, save_every):
 
 			if step % save_every == 0:
 					saver.save(sess, checkpoint_directory + '/model', global_step=step)
-					file = open("ckpt/step.txt", "w")
+					file = open('ckpt/step.txt', 'w')
 					file.write(str(step))
 					file.close()
 
 def test_LSTM(start):
-	if start != "":
+	if start != '':
 		test_start = start
 	else:
 		test_start = random.choice(text)
@@ -184,6 +184,6 @@ def test_LSTM(start):
 def generate_SIP(start):
 	test_generated = test_LSTM(start)
 	try:
-		return test_generated[0:test_generated.index("\n\n")]
+		return test_generated[0:test_generated.index('\n\n')]
 	except:
 		return test_generated
