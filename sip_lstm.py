@@ -1,11 +1,15 @@
-
-import json
+import re
 import numpy as np
 import random
 import tensorflow as tf
 import datetime
 
 text = open('issa_haikus_english').read()
+
+word_regex = '(?:[A-Za-z\']*(?:(?<!-)-(?!-))*[A-Za-z\']+)+'
+regex = word_regex + '|--|\\.{3}|\\n| |"|,|!|\\?'
+words = sorted(list(set(re.findall(regex, text))))
+print(words)
 
 chars = sorted(list(set(text)))
 char_size = len(chars)
