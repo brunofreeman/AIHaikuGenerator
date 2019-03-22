@@ -1,0 +1,7 @@
+{
+	"len_per_section":15,
+	"skip":2,
+	"batch_size":512,
+	"hidden_nodes":1024,
+	"num_generate_on_test":100
+}

@@ -1,101 +1,88 @@
-import re
-import random
-import numpy as np
-import tensorflow as tf
 import datetime
+import json
+import numpy as np
 import os
+import random
+import re
+import tensorflow as tf
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
+json_data = json.load(open('sip_lstm_config.json'))
 
 text = open('issa_haiku').read()
 
 word_regex = '(?:[A-Za-z\']*(?:(?<!-)-(?!-))*[A-Za-z\']+)+'
 regex = word_regex + '|--|\\.{3}|\\n| |"|,|!|\\?'
-pattern = re.compile(regex)
-words = []
-words_indicies = []
-for match in pattern.finditer(text):
-	words.append(match.group())
-	words_indicies.append(match.start())
-words = sorted(list(set(words)))
-#re.findall(regex, text)
+words = re.findall(regex, text)
+word_list = sorted(list(set(words)))
 
-#chars = sorted(list(set(text)))
-chars = words
-char_size = len(chars)
-char2id = dict((c, i) for i, c in enumerate(chars))
-id2char = dict((i, c) for i, c in enumerate(chars))
+num_words = len(word_list)
+word_to_id = dict((w, i) for i, w in enumerate(word_list))
+id_to_word = dict((i, w) for i, w in enumerate(word_list))
 
 def sample(prediction):
 	r = random.uniform(0,1)
 	s = 0
-	char_id = len(prediction) - 1
+	word_id = len(prediction) - 1
 	for i in range(len(prediction)):
 		s += prediction[i]
 		if s >= r:
-			char_id = i
+			word_id = i
 			break
-	char_one_hot = np.zeros(shape=[char_size])
-	char_one_hot[char_id] = 1.0
-	return char_one_hot
+	word_one_hot = np.zeros(shape=[num_words])
+	word_one_hot[word_id] = 1.0
+	return word_one_hot
 
-len_per_section = 10
-skip = 2
+len_per_section = json_data['len_per_section']
+skip = json_data['skip']
 sections = []
-next_chars = []
-'''
-for i in range(0, len(text) - len_per_section, skip):
-	print(text[i: i + len_per_section])
-	print(text[i + len_per_section])
-	print('\n')
-	sections.append(text[i: i + len_per_section])
-	next_chars.append(text[i + len_per_section])
-'''
+next_words = []
 
-for i in range(0, len(words_indicies) - len_per_section, skip):
-	#print(text[words_indicies[i]: words_indicies[i + len_per_section]])
-	sections.append(text[words_indicies[i]: words_indicies[i + len_per_section]])
-	if i + len_per_section + 1 == len(words_indicies):
-		next_chars.append(text[words_indicies[i + len_per_section]:])
-		#print(text[words_indicies[i + len_per_section]:])
-	else:
-		next_chars.append(text[words_indicies[i + len_per_section]:words_indicies[i + len_per_section + 1]])
-		#print(text[words_indicies[i + len_per_section]:words_indicies[i + len_per_section + 1]])
-	#print('\n')
+for i in range(0, len(words) - len_per_section, skip):
+	sections.append(words[i: i + len_per_section])
+	next_words.append(words[i + len_per_section])
 
-#print('len(sections) = %d, len_per_section = %d, char_size = %d' % (len(sections), len_per_section, char_size)) --> len(sections) = 98086, len_per_section = 10, char_size = 7264
-X = np.zeros((len(sections), len_per_section, char_size))
-y = np.zeros((len(sections), char_size))
+X = []
+
+def X_section(row_start, row_end):
+	generated_X = np.zeros((row_end - row_start, len_per_section, num_words))
+	for non_zero in X:
+		if row_start <= non_zero[0] and non_zero[0] < row_end:
+			generated_X[non_zero[0] - row_start, non_zero[1], non_zero[2]] = 1
+	return generated_X
+
+y = np.zeros((len(sections), num_words))
 
 for i, section in enumerate(sections):
-	for j, char in enumerate(section):
-		X[i, j, char2id[char]] = 1
-	y[i, char2id[next_chars[i]]] = 1
+	for j, word in enumerate(section):
+		X.append([i, j, word_to_id[word]])
+	y[i, word_to_id[next_words[i]]] = 1
 
-batch_size = 512
-hidden_nodes = 1024
+batch_size = json_data['batch_size']
+hidden_nodes = json_data['hidden_nodes']
 
 checkpoint_directory = 'ckpt'
 
 graph = tf.Graph()
 with graph.as_default():
 	global_step = tf.Variable(0)
-	data = tf.placeholder(tf.float32, [batch_size, len_per_section, char_size])
-	labels = tf.placeholder(tf.float32, [batch_size, char_size])
+	data = tf.placeholder(tf.float32, [batch_size, len_per_section, num_words])
+	labels = tf.placeholder(tf.float32, [batch_size, num_words])
 
-	w_ii = tf.Variable(tf.truncated_normal([char_size, hidden_nodes], -0.1, 0.1))
+	w_ii = tf.Variable(tf.truncated_normal([num_words, hidden_nodes], -0.1, 0.1))
 	w_io = tf.Variable(tf.truncated_normal([hidden_nodes, hidden_nodes], -0.1, 0.1))
 	b_i = tf.Variable(tf.zeros([1, hidden_nodes]))
 
-	w_fi = tf.Variable(tf.truncated_normal([char_size, hidden_nodes], -0.1, 0.1))
+	w_fi = tf.Variable(tf.truncated_normal([num_words, hidden_nodes], -0.1, 0.1))
 	w_fo = tf.Variable(tf.truncated_normal([hidden_nodes, hidden_nodes], -0.1, 0.1))
 	b_f = tf.Variable(tf.zeros([1, hidden_nodes]))
 
-	w_oi = tf.Variable(tf.truncated_normal([char_size, hidden_nodes], -0.1, 0.1))
+	w_oi = tf.Variable(tf.truncated_normal([num_words, hidden_nodes], -0.1, 0.1))
 	w_oo = tf.Variable(tf.truncated_normal([hidden_nodes, hidden_nodes], -0.1, 0.1))
 	b_o = tf.Variable(tf.zeros([1, hidden_nodes]))
 
-	w_ci = tf.Variable(tf.truncated_normal([char_size, hidden_nodes], -0.1, 0.1))
+	w_ci = tf.Variable(tf.truncated_normal([num_words, hidden_nodes], -0.1, 0.1))
 	w_co = tf.Variable(tf.truncated_normal([hidden_nodes, hidden_nodes], -0.1, 0.1))
 	b_c = tf.Variable(tf.zeros([1, hidden_nodes]))
 
@@ -123,14 +110,14 @@ with graph.as_default():
 			outputs_all_i = tf.concat([outputs_all_i, output], 0)
 			labels_all_i = tf.concat([labels_all_i, labels], 0)
 
-	w = tf.Variable(tf.truncated_normal([hidden_nodes, char_size], -0.1, 0.1))
-	b = tf.Variable(tf.zeros([char_size]))
+	w = tf.Variable(tf.truncated_normal([hidden_nodes, num_words], -0.1, 0.1))
+	b = tf.Variable(tf.zeros([num_words]))
 
 	logits = tf.matmul(outputs_all_i, w) + b
 	loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=labels_all_i))
 	optimizer = tf.train.GradientDescentOptimizer(10.).minimize(loss, global_step=global_step)
 
-	test_data = tf.placeholder(tf.float32, shape=[1, char_size])
+	test_data = tf.placeholder(tf.float32, shape=[1, num_words])
 	test_output = tf.Variable(tf.zeros([1, hidden_nodes]))
 	test_state = tf.Variable(tf.zeros([1, hidden_nodes]))
 
@@ -156,24 +143,24 @@ def train_lstm(max_steps, log_every, save_every):
 		offset = 0
 
 		if step_start >= max_steps + 1:
-			print('training has already reached target step (%s)' % datetime.datetime.now())
+			print('training has already reached target step %d (%s)' % (max_steps, datetime.datetime.now()))
 
 		for step in range(step_start, max_steps + 1):
-			offset = offset % len(X)
-			if offset <= (len(X) - batch_size):
-				batch_data = X[offset: offset + batch_size]
+			offset = offset % len(sections)
+			if offset <= (len(sections) - batch_size):
+				batch_data = X_section(offset, offset + batch_size)
 				batch_labels = y[offset: offset + batch_size]
 				offset += batch_size
 			else:
-				to_add = batch_size - (len(X) - offset)
-				batch_data = np.concatenate((X[offset: len(X)], X[0: to_add]))
-				batch_labels = np.concatenate((y[offset: len(X)], y[0: to_add]))
+				to_add = batch_size - (len(sections) - offset)
+				batch_data = np.concatenate((X_section(offset, len(sections)), X_section(0, to_add)))
+				batch_labels = np.concatenate((y[offset: len(sections)], y[0: to_add]))
 				offset = to_add
 
 			_, training_loss = sess.run([optimizer, loss], feed_dict={data: batch_data, labels: batch_labels})
 
 			if step % log_every == 0:
-				print('training loss at step %d: %.2f (%s)' % (step, training_loss, datetime.datetime.now()))
+				print('training loss at step %d: %.5f (%s)' % (step, training_loss, datetime.datetime.now()))
 
 			if step % save_every == 0:
 				saver.save(sess, checkpoint_directory + '/model', global_step=step)
@@ -182,15 +169,15 @@ def train_lstm(max_steps, log_every, save_every):
 				file.close()
 
 			if step == max_steps:
-				print('training has reached target step (%s)' % datetime.datetime.now())
+				print('training has reached target step %d (%s)' % (max_steps, datetime.datetime.now()))
 
 def test_lstm(start):
-	if start != '':
+	if start != ['']:
 		test_start = start
 	else:
-		test_start = random.choice(text)
-		while test_start  not in 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz\"':
-			test_start = random.choice(text)
+		test_start = [random.choice(words)]
+		while test_start[0] in ['\n', ' ', '!', ',', '--', '...', '?']:
+			test_start = [random.choice(words)]
 
 	with tf.Session(graph=graph) as sess:
 		tf.global_variables_initializer().run()
@@ -198,28 +185,28 @@ def test_lstm(start):
 		saver = tf.train.Saver()
 		saver.restore(sess, model)
 		reset_test_state.run()
-		test_generated = test_start
+		test_generated = ''.join(test_start)
 
 		for i in range(len(test_start) - 1):
-			test_X = np.zeros((1, char_size))
-			test_X[0, char2id[test_start[i]]] = 1.
+			test_X = np.zeros((1, num_words))
+			test_X[0, word_to_id[test_start[i]]] = 1.
 			_ = sess.run(test_prediction, feed_dict={test_data: test_X})
 
-		test_X = np.zeros((1, char_size))
-		test_X[0, char2id[test_start[-1]]] = 1.
+		test_X = np.zeros((1, num_words))
+		test_X[0, word_to_id[test_start[-1]]] = 1.
 
-		for i in range(200):
+		for i in range(json_data['num_generate_on_test']):
 			prediction = test_prediction.eval({test_data: test_X})[0]
-			next_char_one_hot = sample(prediction)
-			next_char = id2char[np.argmax(next_char_one_hot)]
-			test_generated += next_char
-			test_X = next_char_one_hot.reshape((1, char_size))
-
+			next_word_one_hot = sample(prediction)
+			next_word = id_to_word[np.argmax(next_word_one_hot)]
+			test_generated += next_word
+			test_X = next_word_one_hot.reshape((1, num_words))
+	print(test_generated)
 	return test_generated
 
 def generate_sip(start):
-	test_generated = test_LSTM(start)
+	test_generated = test_lstm(start)
 	try:
-		return test_generated[0:test_generated.index('\n\n')]
+		return test_generated[0: test_generated.index('\n\n')]
 	except:
 		return test_generated

@@ -1,11 +1,11 @@
-from tkinter import *
 from sip_lstm import generate_sip
+from tkinter import *
 import tkinter.font
 
 def change_sip():
 	sip_text.set('')
 	window.update()
-	sip_text.set(generate_sip(''))
+	sip_text.set(generate_sip(['']))
 
 def reset_sip():
 	sip_text.set('')
