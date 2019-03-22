@@ -1,15 +1,18 @@
 import re
-import numpy as np
 import random
+import numpy as np
 import tensorflow as tf
 import datetime
+import os
 
-text = open('issa_haikus_english').read()
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
+text = open('issa_haiku').read()
 
 word_regex = '(?:[A-Za-z\']*(?:(?<!-)-(?!-))*[A-Za-z\']+)+'
 regex = word_regex + '|--|\\.{3}|\\n| |"|,|!|\\?'
 words = sorted(list(set(re.findall(regex, text))))
-print(words)
+#print(words)
 
 chars = sorted(list(set(text)))
 char_size = len(chars)
@@ -120,7 +123,7 @@ def train_lstm(max_steps, log_every, save_every):
 			model = tf.train.latest_checkpoint(checkpoint_directory)
 			saver = tf.train.Saver()
 			saver.restore(sess, model)
-			file = open('ckpt/step.txt', 'r')
+			file = open('ckpt/current_step.txt', 'r')
 			step_start = int(file.read()) + 1
 			file.close()
 		except:
@@ -129,7 +132,10 @@ def train_lstm(max_steps, log_every, save_every):
 
 		offset = 0
 
-		for step in range(step_start, max_steps):
+		if step_start >= max_steps + 1:
+			print('training has already reached target step (%s)' % datetime.datetime.now())
+
+		for step in range(step_start, max_steps + 1):
 			offset = offset % len(X)
 			if offset <= (len(X) - batch_size):
 				batch_data = X[offset: offset + batch_size]
@@ -144,15 +150,18 @@ def train_lstm(max_steps, log_every, save_every):
 			_, training_loss = sess.run([optimizer, loss], feed_dict={data: batch_data, labels: batch_labels})
 
 			if step % log_every == 0:
-					print('training loss at step %d: %.2f (%s)' % (step, training_loss, datetime.datetime.now()))
+				print('training loss at step %d: %.2f (%s)' % (step, training_loss, datetime.datetime.now()))
 
 			if step % save_every == 0:
-					saver.save(sess, checkpoint_directory + '/model', global_step=step)
-					file = open('ckpt/step.txt', 'w')
-					file.write(str(step))
-					file.close()
+				saver.save(sess, checkpoint_directory + '/model', global_step=step)
+				file = open('ckpt/current_step.txt', 'w')
+				file.write(str(step))
+				file.close()
 
-def test_LSTM(start):
+			if step == max_steps:
+				print('training has reached target step (%s)' % datetime.datetime.now())
+
+def test_lstm(start):
 	if start != '':
 		test_start = start
 	else:
@@ -185,7 +194,7 @@ def test_LSTM(start):
 
 	return test_generated
 
-def generate_SIP(start):
+def generate_sip(start):
 	test_generated = test_LSTM(start)
 	try:
 		return test_generated[0:test_generated.index('\n\n')]
