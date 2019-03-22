@@ -11,10 +11,17 @@ text = open('issa_haiku').read()
 
 word_regex = '(?:[A-Za-z\']*(?:(?<!-)-(?!-))*[A-Za-z\']+)+'
 regex = word_regex + '|--|\\.{3}|\\n| |"|,|!|\\?'
-words = sorted(list(set(re.findall(regex, text))))
-#print(words)
+pattern = re.compile(regex)
+words = []
+words_indicies = []
+for match in pattern.finditer(text):
+	words.append(match.group())
+	words_indicies.append(match.start())
+words = sorted(list(set(words)))
+#re.findall(regex, text)
 
-chars = sorted(list(set(text)))
+#chars = sorted(list(set(text)))
+chars = words
 char_size = len(chars)
 char2id = dict((c, i) for i, c in enumerate(chars))
 id2char = dict((i, c) for i, c in enumerate(chars))
@@ -32,15 +39,31 @@ def sample(prediction):
 	char_one_hot[char_id] = 1.0
 	return char_one_hot
 
-len_per_section = 5
+len_per_section = 10
 skip = 2
 sections = []
 next_chars = []
-
+'''
 for i in range(0, len(text) - len_per_section, skip):
+	print(text[i: i + len_per_section])
+	print(text[i + len_per_section])
+	print('\n')
 	sections.append(text[i: i + len_per_section])
 	next_chars.append(text[i + len_per_section])
+'''
 
+for i in range(0, len(words_indicies) - len_per_section, skip):
+	#print(text[words_indicies[i]: words_indicies[i + len_per_section]])
+	sections.append(text[words_indicies[i]: words_indicies[i + len_per_section]])
+	if i + len_per_section + 1 == len(words_indicies):
+		next_chars.append(text[words_indicies[i + len_per_section]:])
+		#print(text[words_indicies[i + len_per_section]:])
+	else:
+		next_chars.append(text[words_indicies[i + len_per_section]:words_indicies[i + len_per_section + 1]])
+		#print(text[words_indicies[i + len_per_section]:words_indicies[i + len_per_section + 1]])
+	#print('\n')
+
+#print('len(sections) = %d, len_per_section = %d, char_size = %d' % (len(sections), len_per_section, char_size)) --> len(sections) = 98086, len_per_section = 10, char_size = 7264
 X = np.zeros((len(sections), len_per_section, char_size))
 y = np.zeros((len(sections), char_size))
 
