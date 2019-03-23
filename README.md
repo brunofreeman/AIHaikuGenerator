@@ -4,4 +4,7 @@ SIP stands for Short Issa Poem. This model is trained on English translations of
 
 The model save files for v3 are too large to upload to the repo, so they are listed under [.gitignore](.gitignore).
   
-[HackRPI Devpost](https://devpost.com/software/short-issa-poem-sip-generator-lstm-wura3e) (v1 and v2)
+[HackRPI Devpost](https://devpost.com/software/short-issa-poem-sip-generator-lstm-wura3e) (v1 and v2)  
+
+## License
+Licensed under the [MIT License](LICENSE).
