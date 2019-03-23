@@ -1,12 +1,9 @@
 import datetime
 import json
 import numpy as np
-import os
 import random
 import re
 import tensorflow as tf
-
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 json_data = json.load(open('sip_lstm_config.json'))
 
@@ -207,7 +204,9 @@ def test_lstm(start):
 def generate_sip(start):
 	test_generated = test_lstm(start)
 	sips = test_generated.split('\n\n')
-	list(filter(('').__ne__, sips))
+	for sip in sips:
+		if sip.strip() == '':
+			sips.remove(sip)
 	try:
 		return random.choice(sips[2: len(sips) - 2]).strip()
 	except:
