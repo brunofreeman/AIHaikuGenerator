@@ -201,7 +201,7 @@ def test_lstm(start):
 			next_word = id_to_word[np.argmax(next_word_one_hot)]
 			test_generated += next_word
 			test_X = next_word_one_hot.reshape((1, num_words))
-	print(test_generated)
+
 	return test_generated
 
 def generate_sip(start):
