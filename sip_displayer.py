@@ -14,7 +14,7 @@ def reset_sip():
 	sip_text.set(default_sip)
 
 def save_sip():
-	file = open('saved_sips/sip_%s.txt' % datetime.datetime.now(), 'w')
+	file = open('saved_sips/sip_%d.txt' % (datetime.datetime.now() - datetime.datetime.utcfromtimestamp(0)).total_seconds(), 'w')
 	file.write(sip_text.get())
 	file.close()
 
@@ -24,7 +24,7 @@ window = Tk()
 window.title('SIP Generator')
 window.configure(background='black')
 window_size = 1000
-window.geometry(str(window_size) + 'x' + str(window_size))
+window.geometry('%dx%d' % (window_size, window_size))
 
 sip_text = StringVar()
 sip_text.set(default_sip)
@@ -36,14 +36,14 @@ generate_font = tkinter.font.Font(family='Helvetica', size=24, weight='bold')
 generate_button = Button(window, text='Take a SIP', font=generate_font, command=change_sip)
 generate_button.place(relx=0.5, rely=0.8, anchor='c')
 
-small_font = tkinter.font.Font(family='Helvetica', size=12)
+small_font = tkinter.font.Font(family='Helvetica', size=12, weight='bold')
 sub_label = Label(window, text='(Short Issa Poem)', font=small_font, bg='black', fg='white')
 sub_label.place(relx=0.5, rely=0.85, anchor='c')
 
 reset_button = Button(window, text='Reset SIP', font=small_font, command=reset_sip)
-reset_button.place(relx=0.25, rely=0.9, anchor='c')
+reset_button.place(relx=0.15, rely=0.9, anchor='c')
 
 save_button = Button(window, text='Save SIP', font=small_font, command=save_sip)
-save_button.place(relx=0.75, rely=0.9, anchor='c')
+save_button.place(relx=0.85, rely=0.9, anchor='c')
 
 mainloop()
