@@ -26,7 +26,10 @@ saved_sips_dir = 'saved_sips'
 
 window = Tk()
 window.title('SIP Generator')
-window.iconbitmap('icons/issa2.ico')
+try:
+	window.iconbitmap('icons/issa2.ico')
+except:
+	pass
 window.configure(background='black')
 window_size = 1000
 window.geometry('%dx%d' % (window_size, window_size))
