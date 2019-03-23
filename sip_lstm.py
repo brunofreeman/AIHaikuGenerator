@@ -160,7 +160,7 @@ def train_lstm(max_steps, log_every, save_every):
 			_, training_loss = sess.run([optimizer, loss], feed_dict={data: batch_data, labels: batch_labels})
 
 			if step % log_every == 0:
-				print('training loss at step %d: %.5f (%s)' % (step, training_loss, datetime.datetime.now()))
+				print('training loss at step %d: %.3f (%s)' % (step, training_loss, datetime.datetime.now()))
 
 			if step % save_every == 0:
 				saver.save(sess, checkpoint_directory + '/model', global_step=step)
@@ -206,7 +206,12 @@ def test_lstm(start):
 
 def generate_sip(start):
 	test_generated = test_lstm(start)
+	sips = test_generated.split('\n\n')
+	list(filter(('').__ne__, sips))
 	try:
-		return test_generated[0: test_generated.index('\n\n')]
+		return random.choice(sips[2: len(sips) - 2]).strip()
 	except:
-		return test_generated
+		try:
+			return random.choice(sips).strip()
+		except:
+			return '***no data generated***'
