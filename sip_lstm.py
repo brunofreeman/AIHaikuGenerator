@@ -204,13 +204,16 @@ def test_lstm(start):
 def generate_sip(start):
 	test_generated = test_lstm(start)
 	sips = test_generated.split('\n\n')
-	for sip in sips:
-		if sip.strip() == '':
-			sips.remove(sip)
+
+	for i in reversed(range(len(sips))):
+		sips[i] = sips[i].strip()
+		if sips[i] == '':
+			del sips[i]
+
 	try:
-		return random.choice(sips[2: len(sips) - 2]).strip()
+		return random.choice(sips[2: len(sips) - 2])
 	except:
 		try:
-			return random.choice(sips).strip()
+			return random.choice(sips)
 		except:
 			return '***no data generated***'
