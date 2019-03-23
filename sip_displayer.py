@@ -3,7 +3,7 @@ from tkinter import *
 import tkinter.font
 
 def change_sip():
-	sip_text.set('')
+	sip_text.set('loading...')
 	window.update()
 	sip_text.set(generate_sip(['']))
 
