@@ -1,6 +1,7 @@
 from sip_lstm import generate_sip
 from tkinter import *
 import datetime
+import os
 import tkinter.font
 
 def change_sip():
@@ -14,11 +15,14 @@ def reset_sip():
 	sip_text.set(default_sip)
 
 def save_sip():
-	file = open('saved_sips/sip_%d.txt' % (datetime.datetime.now() - datetime.datetime.utcfromtimestamp(0)).total_seconds(), 'w')
+	if not os.path.exists(saved_sips_dir):
+		os.makedirs(saved_sips_dir)
+	file = open('%s/sip_%d.txt' % (saved_sips_dir, (datetime.datetime.now() - datetime.datetime.utcfromtimestamp(0)).total_seconds()), 'w')
 	file.write(sip_text.get())
 	file.close()
 
 default_sip = 'authored by computer...\nshort Issa poems for you\nnow, click the button'
+saved_sips_dir = 'saved_sips'
 
 window = Tk()
 window.title('SIP Generator')
