@@ -13,8 +13,8 @@ word_regex = '(?:[A-Za-z\']*(?:(?<!-)-(?!-))*[A-Za-z\']+)+'
 regex = word_regex + '|--|\\.{3}|\\n| |"|,|!|\\?'
 words = re.findall(regex, text)
 word_list = sorted(list(set(words)))
-
 num_words = len(word_list)
+
 word_to_id = dict((w, i) for i, w in enumerate(word_list))
 id_to_word = dict((i, w) for i, w in enumerate(word_list))
 
@@ -111,7 +111,7 @@ with graph.as_default():
 	b = tf.Variable(tf.zeros([num_words]))
 
 	logits = tf.matmul(outputs_all_i, w) + b
-	loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=labels_all_i))
+	loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=logits, labels=labels_all_i))
 	optimizer = tf.train.GradientDescentOptimizer(10.).minimize(loss, global_step=global_step)
 
 	test_data = tf.placeholder(tf.float32, shape=[1, num_words])
