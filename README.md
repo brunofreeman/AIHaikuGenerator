@@ -9,6 +9,8 @@ The model save files for v3 are too large to upload to the repo, so the `ckpt` d
   
 [HackRPI Devpost](https://devpost.com/software/short-issa-poem-sip-generator-lstm-wura3e) (v1 and v2)  
 
+[Siraj Raval's](https://www.youtube.com/channel/UCWN3xxRkmTPmbKwht9FuE5A) [tutorial](https://www.youtube.com/watch?v=ZGU5kIG7b2I) on LSTMs was a huge help for this project!  
+
 ## License
 Licensed under the [MIT License](LICENSE).  
 
