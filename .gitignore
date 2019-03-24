@@ -5,3 +5,4 @@ venv/*
 .floydexpt
 .floydignore
 floyd.yml
+commands.txt
