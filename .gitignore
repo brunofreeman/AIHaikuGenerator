@@ -1,7 +1,8 @@
-__pycache__/*
-ckpt/*
-saved_sips/*
-venv/*
+/__pycache__/*
+/ckpt/*
+/ckpt_save/*
+/saved_sips/*
+/venv/*
 .floydexpt
 .floydignore
 _commands.txt

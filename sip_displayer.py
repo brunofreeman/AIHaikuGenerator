@@ -22,12 +22,12 @@ def save_sip():
 	file.close()
 
 default_sip = 'authored by computer...\nshort Issa poems for you\nnow, click the button'
-saved_sips_dir = 'saved_sips'
+saved_sips_dir = '/saved_sips'
 
 window = Tk()
 window.title('SIP Generator')
 try:
-	window.iconbitmap('icons/issa2.ico')
+	window.iconbitmap('/icons/issa2.ico')
 except:
 	pass
 window.configure(background='black')

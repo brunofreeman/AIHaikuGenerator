@@ -3,7 +3,8 @@
 	"skip":2,
 	"batch_size":512,
 	"hidden_nodes":1024,
-	"checkpoint_dir":"ckpt",
+	"load_checkpoint_dir":"/ckpt",
+	"save_checkpoint_dir":"/ckpt_save",
 	"current_step_name":"current_step.txt",
 	"num_generate_on_test":100
 }

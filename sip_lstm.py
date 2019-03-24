@@ -60,10 +60,14 @@ for i, section in enumerate(sections):
 batch_size = json_data['batch_size']
 hidden_nodes = json_data['hidden_nodes']
 
-checkpoint_dir = json_data['checkpoint_dir']
-if not os.path.exists(checkpoint_dir):
-	os.makedirs(checkpoint_dir)
-current_step_path = checkpoint_dir + '/' + json_data['current_step_name']
+load_checkpoint_dir = json_data['load_checkpoint_dir']
+save_checkpoint_dir = json_data['save_checkpoint_dir']
+if not os.path.exists(load_checkpoint_dir):
+	os.makedirs(load_checkpoint_dir)
+if not os.path.exists(save_checkpoint_dir):
+	os.makedirs(save_checkpoint_dir)
+current_step_load_path = load_checkpoint_dir + '/' + json_data['current_step_name']
+current_step_save_path = save_checkpoint_dir + '/' + json_data['current_step_name']
 
 graph = tf.Graph()
 with graph.as_default():
@@ -131,10 +135,10 @@ def train_lstm(max_steps, log_every, save_every):
 	with tf.Session(graph=graph) as sess:
 		tf.global_variables_initializer().run()
 		try:
-			model = tf.train.latest_checkpoint(checkpoint_dir)
+			model = tf.train.latest_checkpoint(load_checkpoint_dir)
 			saver = tf.train.Saver()
 			saver.restore(sess, model)
-			file = open(current_step_path, 'r')
+			file = open(current_step_load_path, 'r')
 			step_start = int(file.read()) + 1
 			file.close()
 		except:
@@ -164,8 +168,8 @@ def train_lstm(max_steps, log_every, save_every):
 				print('training loss at step %d: %.3f (%s)' % (step, training_loss, datetime.datetime.now()))
 
 			if step % save_every == 0:
-				saver.save(sess, checkpoint_dir + '/model', global_step=step)
-				file = open(current_step_path, 'w')
+				saver.save(sess, save_checkpoint_dir + '/model', global_step=step)
+				file = open(current_step_save_path, 'w')
 				file.write(str(step))
 				file.close()
 
