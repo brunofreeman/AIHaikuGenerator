@@ -1,5 +1,7 @@
 __pycache__/*
 ckpt/*
-floyd.yml
 saved_sips/*
 venv/*
+.floydexpt
+.floydignore
+floyd.yml
