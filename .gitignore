@@ -4,5 +4,5 @@ saved_sips/*
 venv/*
 .floydexpt
 .floydignore
+_commands.txt
 floyd.yml
-commands.txt
