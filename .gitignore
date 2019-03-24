@@ -1,6 +1,5 @@
 /__pycache__/*
 /ckpt/*
-/ckpt_save/*
 /saved_sips/*
 /venv/*
 .floydexpt

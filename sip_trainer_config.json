@@ -1,5 +1,5 @@
 {
 	"max_steps":100000,
-	"log_every":100,
+	"log_every":25,
 	"save_every":100
 }

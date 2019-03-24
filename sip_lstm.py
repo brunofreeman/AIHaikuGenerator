@@ -186,7 +186,7 @@ def test_lstm(start):
 
 	with tf.Session(graph=graph) as sess:
 		tf.global_variables_initializer().run()
-		model = tf.train.latest_checkpoint(checkpoint_dir)
+		model = tf.train.latest_checkpoint(load_checkpoint_dir)
 		saver = tf.train.Saver()
 		saver.restore(sess, model)
 		reset_test_state.run()
